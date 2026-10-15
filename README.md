@@ -10,7 +10,7 @@ Tiện ích Chrome (Manifest V3) hiển thị **2 phụ đề cùng lúc** khi x
 
 Cách dễ nhất: cài từ Chrome Web Store (link sẽ cập nhật khi được duyệt). Cài thủ công từ mã nguồn:
 
-1. Tải về (nút **Code → Download ZIP** trên GitHub, hoặc file zip trong mục Releases) và giải nén.
+1. Trên trang [GitHub](https://github.com/thudonggg25/duo-subs-netflix), bấm nút xanh **Code → Download ZIP** rồi giải nén.
 2. Mở `chrome://extensions`.
 3. Bật **Developer mode** (góc trên bên phải).
 4. Bấm **Load unpacked** và chọn thư mục chứa `manifest.json`.

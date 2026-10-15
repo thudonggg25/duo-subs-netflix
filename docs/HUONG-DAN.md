@@ -26,7 +26,7 @@ Cách dễ nhất là cài từ Chrome Web Store, tiện ích sẽ tự cập nh
 
 **Cài thủ công từ file zip** (khi chưa có trên cửa hàng, hoặc muốn dùng bản mới nhất trên GitHub)
 
-1. Tải file zip (mục Releases, hoặc nút **Code → Download ZIP**) và giải nén vào một thư mục cố định, không xóa thư mục này sau khi cài.
+1. Vào [trang GitHub của DUO SUBS](https://github.com/thudonggg25/duo-subs-netflix), bấm nút xanh **Code → Download ZIP** và giải nén vào một thư mục cố định, không xóa thư mục này sau khi cài.
 2. Mở `chrome://extensions` trên thanh địa chỉ.
 3. Bật **Chế độ dành cho nhà phát triển** ở góc trên bên phải.
 4. Bấm **Tải tiện ích đã giải nén** và chọn thư mục có file `manifest.json`.

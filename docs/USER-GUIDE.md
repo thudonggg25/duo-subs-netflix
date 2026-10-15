@@ -26,7 +26,7 @@ The easiest way is to install from the Chrome Web Store, where the extension upd
 
 **Manual install from a zip file** (before it is on the store, or to use the latest version from GitHub)
 
-1. Download the zip file (Releases section, or **Code → Download ZIP**) and unzip it into a permanent folder. Do not delete this folder after installing.
+1. On the [DUO SUBS GitHub page](https://github.com/thudonggg25/duo-subs-netflix), click the green **Code → Download ZIP** button and unzip it into a permanent folder. Do not delete this folder after installing.
 2. Open `chrome://extensions` in the address bar.
 3. Turn on **Developer mode** in the top-right corner.
 4. Click **Load unpacked** and choose the folder that contains `manifest.json`.
