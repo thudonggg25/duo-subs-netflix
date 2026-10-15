@@ -17,9 +17,20 @@ window.NDS = window.NDS || {};
       return await res.text();
     } catch (err) {
       if (!NDS.extAlive()) throw err;
-      const res = await chrome.runtime.sendMessage({ type: 'NDS_FETCH', url });
+      // Ghi rõ lỗi của cả 2 cách tải (trực tiếp / qua service worker) để chẩn đoán.
+      let host = '?';
+      try {
+        host = new URL(url).hostname;
+      } catch (e) {}
+      let res = null;
+      try {
+        res = await chrome.runtime.sendMessage({ type: 'NDS_FETCH', url });
+      } catch (e) {
+        res = { ok: false, error: 'SW: ' + e.message };
+      }
       if (res && res.ok) return res.text;
-      throw new Error((res && res.error) || err.message);
+      const sw = res ? res.error : 'SW không phản hồi';
+      throw new Error(`${err.message} | ${sw} | ${host}`);
     }
   }
 
