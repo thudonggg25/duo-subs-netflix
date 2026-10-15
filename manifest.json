@@ -1,0 +1,66 @@
+{
+  "manifest_version": 3,
+  "name": "DUO SUBS – Dual Subtitles for Netflix",
+  "short_name": "DUO SUBS",
+  "version": "1.9.0",
+  "description": "Hai phụ đề cùng lúc trên Netflix để học ngoại ngữ: Pinyin, Furigana, câu thoại song ngữ, tua theo câu.",
+  "icons": {
+    "16": "icons/icon16.png",
+    "32": "icons/icon32.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "permissions": [
+    "storage"
+  ],
+  "host_permissions": [
+    "https://*.nflxvideo.net/*"
+  ],
+  "background": {
+    "service_worker": "src/background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://www.netflix.com/*"
+      ],
+      "js": [
+        "src/page/interceptor.js"
+      ],
+      "run_at": "document_start",
+      "world": "MAIN"
+    },
+    {
+      "matches": [
+        "https://www.netflix.com/*"
+      ],
+      "js": [
+        "src/content/settings.js",
+        "src/content/i18n.js",
+        "src/vendor/pinyin-pro.js",
+        "src/vendor/kuromoji.js",
+        "src/content/phonetic.js",
+        "src/content/parsers.js",
+        "src/content/subtitles.js",
+        "src/content/overlay.js",
+        "src/content/menu.js",
+        "src/content/transcript.js",
+        "src/content/main.js"
+      ],
+      "css": [
+        "src/content/styles.css"
+      ],
+      "run_at": "document_start"
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "src/vendor/kuromoji-dict/*"
+      ],
+      "matches": [
+        "https://www.netflix.com/*"
+      ]
+    }
+  ]
+}

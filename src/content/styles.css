@@ -1,0 +1,1116 @@
+/* styles.css — mọi class đều có tiền tố nds- để không đụng CSS của Netflix.
+ * Giao diện theo phong cách iOS "liquid glass": nền kính mờ (backdrop-filter),
+ * viền sáng mảnh, bóng mềm, công tắc / segmented control / slider kiểu iOS. */
+
+/* Ẩn phụ đề gốc của Netflix khi dual sub đang bật (ĐIỂM DỄ HỎNG: tên class). */
+html.nds-hide-native .player-timedtext,
+html.nds-hide-native .player-timedtext-text-container {
+  display: none !important;
+}
+
+.nds-root {
+  /* Bảng màu iOS (dark mode) */
+  --nds-blue: #0a84ff;
+  --nds-green: #30d158;
+  --nds-red: #ff453a;
+  --nds-label: rgba(255, 255, 255, 0.96);
+  --nds-label-2: rgba(235, 235, 245, 0.62);
+  --nds-label-3: rgba(235, 235, 245, 0.38);
+  --nds-fill: rgba(120, 120, 128, 0.32);
+  --nds-separator: rgba(255, 255, 255, 0.12);
+  --nds-ui-font: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Segoe UI Variable",
+    "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+
+  position: absolute;
+  inset: 0;
+  z-index: 2147483000;
+  pointer-events: none; /* chỉ các phần tử con tương tác được */
+  font-family: "Netflix Sans", "Helvetica Neue", Arial, sans-serif;
+}
+
+/* Lớp kính dùng chung: nền trong mờ + làm mờ nền phía sau + viền sáng + highlight trên. */
+.nds-glass {
+  background: linear-gradient(160deg, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0.07) 45%, rgba(255, 255, 255, 0.04) 100%),
+    rgba(28, 28, 32, 0.5);
+  -webkit-backdrop-filter: blur(28px) saturate(180%);
+  backdrop-filter: blur(28px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.45), 0 2px 8px rgba(0, 0, 0, 0.25),
+    inset 0 1px 0 rgba(255, 255, 255, 0.45), inset 0 -1px 0 rgba(255, 255, 255, 0.06);
+}
+
+/* ---------- Lớp phụ đề ---------- */
+.nds-layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  transition: transform 0.25s ease;
+}
+.nds-root.nds-off .nds-layer {
+  display: none;
+}
+
+.nds-block {
+  position: absolute;
+  /* (left, top) là điểm giữa-đáy của khối */
+  transform: translate(-50%, -100%);
+  max-width: 90%;
+  width: max-content;
+  text-align: center;
+  font-size: var(--nds-font-size, 28px);
+  line-height: 1.3;
+  font-weight: 600;
+  color: var(--nds-color, #fff);
+  text-shadow: var(--nds-shadow, none);
+  pointer-events: auto;
+  /* Chuột hình 2 mũi tên: báo hiệu phụ đề kéo được và đổi cỡ được (cuộn chuột). */
+  cursor: nesw-resize;
+  user-select: none;
+  touch-action: none;
+  border-radius: 8px;
+}
+.nds-block.nds-empty {
+  display: none;
+}
+.nds-block:hover,
+.nds-block.nds-dragging {
+  outline: 1px dashed rgba(255, 255, 255, 0.5);
+  outline-offset: 5px;
+}
+.nds-content {
+  pointer-events: none; /* sự kiện chuột do .nds-block xử lý */
+}
+.nds-row {
+  display: block;
+}
+.nds-line {
+  display: inline;
+  padding: 0.05em 0.35em;
+  background: var(--nds-bg, transparent);
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+  white-space: pre-wrap;
+}
+
+/* Nút kính lúp (liquid glass) để phóng to / thu nhỏ chữ — hiện khi rê chuột lên phụ đề. */
+/* Đường căn khi kéo */
+.nds-guide {
+  position: absolute;
+  display: none;
+  pointer-events: none;
+}
+.nds-guide-v {
+  top: 0;
+  bottom: 0;
+  width: 0;
+  border-left: 1px dashed rgba(255, 255, 255, 0.35);
+}
+.nds-guide-h {
+  left: 0;
+  right: 0;
+  height: 0;
+  border-top: 1px dashed rgba(255, 255, 255, 0.35);
+}
+.nds-guide-center.nds-guide-v {
+  left: 50%;
+}
+.nds-guide-center.nds-guide-h {
+  top: 50%;
+}
+.nds-layer-dragging .nds-guide-center {
+  display: block;
+}
+.nds-guide-snap.nds-guide-v {
+  border-left: 2px solid #64d2ff;
+  box-shadow: 0 0 6px #64d2ff;
+}
+.nds-guide-snap.nds-guide-h {
+  border-top: 2px solid #64d2ff;
+  box-shadow: 0 0 6px #64d2ff;
+}
+.nds-readout {
+  position: absolute;
+  top: 4%;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 7px 14px;
+  border-radius: 999px;
+  background: rgba(30, 30, 34, 0.55);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #fff;
+  font: 600 13px/1.3 var(--nds-ui-font);
+  white-space: nowrap;
+  opacity: 0;
+  transition: opacity 0.2s;
+  pointer-events: none;
+}
+.nds-readout.nds-show {
+  opacity: 1;
+}
+
+/* ---------- Nút nổi "DUO SUBS" ----------
+ * Bình thường: chỉ một icon phụ đề trắng, không nền, không viền (cùng kiểu icon của Netflix).
+ * Rê chuột vào hoặc khi panel đang mở: hiện khung kính bo tròn + chữ "DUO SUBS". */
+/* Hàng nút nổi (Câu thoại + DUO SUBS) ở góc trên bên phải; ẩn/hiện cùng thanh điều khiển. */
+.nds-buttons {
+  position: absolute;
+  top: 3%;
+  right: 7%;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: opacity 0.25s ease;
+}
+.nds-buttons.nds-hidden-soft {
+  opacity: 0;
+}
+.nds-buttons.nds-hidden-soft .nds-button {
+  pointer-events: none;
+}
+.nds-button {
+  position: relative;
+  pointer-events: auto;
+  display: flex;
+  align-items: center;
+  padding: 6px;
+  border-radius: 999px;
+  color: #fff;
+  font: 700 13px/1 var(--nds-ui-font);
+  letter-spacing: 0.4px;
+  cursor: pointer;
+  transition: opacity 0.25s ease, transform 0.15s ease, background-color 0.2s ease, border-color 0.2s ease,
+    box-shadow 0.2s ease, padding 0.2s ease;
+}
+.nds-button.nds-glass:not(:hover):not(.nds-open) {
+  background: transparent;
+  border-color: transparent;
+  box-shadow: none;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+.nds-button-icon {
+  display: flex;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.6));
+}
+.nds-button-icon svg {
+  display: block;
+}
+.nds-button-text {
+  max-width: 0;
+  opacity: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  transition: max-width 0.22s ease, opacity 0.18s ease, margin 0.22s ease;
+}
+.nds-button:hover,
+.nds-button.nds-open {
+  padding: 6px 14px 6px 10px;
+}
+.nds-button:hover .nds-button-text,
+.nds-button.nds-open .nds-button-text {
+  max-width: 110px;
+  opacity: 1;
+  margin-left: 6px;
+}
+.nds-button:hover .nds-button-icon,
+.nds-button.nds-open .nds-button-icon {
+  filter: none;
+}
+.nds-button:active {
+  transform: scale(0.96);
+}
+.nds-button.nds-hidden-soft {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* ---------- Panel (theo mẫu: header + 2 cột + footer) ----------
+ * Kích thước gốc theo khuyến nghị iOS HIG / Windows Fluent:
+ * chữ thân 14–15px, tiêu đề 22px, điều khiển cao 32–36px, công tắc 46×28, vùng bấm ≥ 32px.
+ * Panel neo ở góc trên bên phải (ngay dưới nút "DUO SUBS") để không che phụ đề khi chỉnh,
+ * và được thu nhỏ toàn bộ theo --nds-panel-scale (0.6 = nhỏ hơn 40%).
+ * Vì dùng transform: scale, kích thước khai báo bên dưới là kích thước TRƯỚC khi thu nhỏ,
+ * nên chiều rộng/chiều cao tối đa được chia cho hệ số scale để vẫn vừa khung player. */
+.nds-root {
+  --nds-panel-scale: 0.6;
+}
+.nds-panel {
+  position: absolute;
+  top: calc(3% + 40px);
+  right: 7%;
+  left: auto;
+  transform: scale(var(--nds-panel-scale));
+  transform-origin: top right;
+  width: min(880px, calc((100% - 32px) / var(--nds-panel-scale)));
+  max-height: calc((97% - 56px) / var(--nds-panel-scale));
+  box-sizing: border-box;
+  overflow-y: auto;
+  pointer-events: auto;
+  padding: 22px 24px 16px;
+  border-radius: 28px;
+  color: var(--nds-label);
+  font: 400 18px/1.4 var(--nds-ui-font);
+  -webkit-font-smoothing: antialiased;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.25) transparent;
+  animation: nds-pop 0.2s cubic-bezier(0.2, 0.9, 0.3, 1.15);
+}
+.nds-panel.nds-glass {
+  background: linear-gradient(160deg, rgba(255, 255, 255, 0.14) 0%, rgba(255, 255, 255, 0.05) 40%, rgba(255, 255, 255, 0.03) 100%),
+    rgba(22, 26, 34, 0.72);
+  -webkit-backdrop-filter: blur(32px) saturate(170%);
+  backdrop-filter: blur(32px) saturate(170%);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+.nds-panel *,
+.nds-panel *::before,
+.nds-panel *::after {
+  box-sizing: border-box;
+}
+/* Hiện ra từ phía nút "DUO SUBS" (góc trên bên phải) */
+@keyframes nds-pop {
+  from {
+    opacity: 0;
+    transform: translateY(-6px) scale(calc(var(--nds-panel-scale) * 0.94));
+  }
+  to {
+    opacity: 1;
+    transform: scale(var(--nds-panel-scale));
+  }
+}
+.nds-panel.nds-hidden {
+  display: none;
+}
+.nds-panel button,
+.nds-panel select,
+.nds-panel input {
+  font-family: var(--nds-ui-font);
+}
+
+/* Header */
+.nds-panel-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+.nds-logo {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  background: linear-gradient(160deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.02)), rgba(10, 14, 22, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12), 0 4px 12px rgba(0, 0, 0, 0.3);
+  color: #2f9bff;
+  font: 800 21px/1 var(--nds-ui-font);
+  letter-spacing: -0.4px;
+  text-shadow: 0 0 12px rgba(47, 155, 255, 0.45);
+}
+.nds-heading {
+  flex: 1;
+  min-width: 0;
+}
+.nds-panel-title {
+  font-size: 26px;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: -0.3px;
+}
+.nds-panel-subtitle {
+  margin-top: 2px;
+  color: var(--nds-label-2);
+  font-size: 17px;
+}
+.nds-close {
+  flex: 0 0 auto;
+  width: 36px;
+  height: 36px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--nds-label);
+  font-size: 18px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+.nds-close:hover {
+  background: rgba(255, 255, 255, 0.16);
+}
+
+/* 2 cột (tự xếp thành 1 cột khi player hẹp) */
+.nds-columns {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+  gap: 12px;
+}
+.nds-card {
+  display: flex;
+  flex-direction: column;
+  padding: 16px 18px 12px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  min-width: 0;
+}
+.nds-section-title {
+  margin: 0 0 8px;
+  color: var(--nds-label-2);
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+.nds-sep {
+  height: 1px;
+  margin: 8px 0;
+  background: var(--nds-separator);
+}
+.nds-cell {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 44px;
+}
+.nds-cell-label {
+  flex: 0 1 auto;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: 19px;
+}
+.nds-cell-controls {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  min-width: 0;
+}
+
+/* Thông báo trạng thái */
+.nds-status {
+  margin: -2px 0 6px;
+  color: #ffd60a;
+  font-size: 16px;
+}
+.nds-status:empty {
+  display: none;
+}
+
+/* Select */
+.nds-select {
+  flex: 1;
+  min-width: 0;
+  max-width: 270px;
+  height: 36px;
+  padding: 0 34px 0 14px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.06)
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='7'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%23ffffff' stroke-opacity='.8' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")
+    no-repeat right 13px center;
+  color: var(--nds-label);
+  font-size: 18px;
+  appearance: none;
+  -webkit-appearance: none;
+  cursor: pointer;
+  text-overflow: ellipsis;
+  transition: border-color 0.15s ease, background-color 0.15s ease;
+}
+.nds-select:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+.nds-select:focus {
+  outline: none;
+  border-color: var(--nds-blue);
+}
+.nds-select-compact {
+  max-width: 215px;
+}
+.nds-select option {
+  /* Popup của <select> có nền trắng mặc định → phải đặt màu rõ ràng */
+  background: #2c2c2e;
+  color: #fff;
+}
+.nds-select option:disabled {
+  color: #8e8e93;
+}
+
+/* Công tắc iOS (46×28, giữa chuẩn iOS 51×31 và Windows 40×20) */
+.nds-switch {
+  position: relative;
+  flex: 0 0 auto;
+  width: 46px;
+  height: 28px;
+  cursor: pointer;
+}
+.nds-switch input {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+.nds-switch-track {
+  position: absolute;
+  inset: 0;
+  border-radius: 999px;
+  background: rgba(120, 120, 128, 0.36);
+  transition: background 0.22s ease;
+}
+.nds-switch-track::after {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.25), 0 1px 1px rgba(0, 0, 0, 0.12);
+  transition: transform 0.25s cubic-bezier(0.3, 0.9, 0.4, 1.15);
+}
+.nds-switch input:checked + .nds-switch-track {
+  background: var(--nds-green);
+}
+.nds-switch input:checked + .nds-switch-track::after {
+  transform: translateX(18px);
+}
+.nds-switch input:focus-visible + .nds-switch-track {
+  outline: 2px solid var(--nds-blue);
+  outline-offset: 2px;
+}
+
+/* Segmented control */
+.nds-seg {
+  display: flex;
+  gap: 2px;
+  padding: 3px;
+  margin: 0 0 8px;
+  border-radius: 12px;
+  background: rgba(118, 118, 128, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+.nds-seg-btn {
+  flex: 1;
+  height: 32px;
+  padding: 0 14px;
+  border: none;
+  border-radius: 9px;
+  background: transparent;
+  color: var(--nds-label-2);
+  font-size: 18px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+}
+.nds-seg-btn:hover {
+  color: var(--nds-label);
+}
+.nds-seg-btn.nds-seg-active {
+  color: #fff;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.34), rgba(255, 255, 255, 0.18));
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.45);
+}
+.nds-seg-lang {
+  flex: 0 0 auto;
+  margin: 0;
+}
+.nds-seg-lang .nds-seg-btn {
+  flex: 0 0 auto;
+  min-width: 56px;
+  height: 30px;
+  font-size: 17px;
+  letter-spacing: 0.4px;
+}
+
+/* Slider iOS */
+.nds-slider {
+  flex: 1;
+  min-width: 80px;
+  height: 28px;
+  margin: 0;
+  background: transparent;
+  appearance: none;
+  -webkit-appearance: none;
+  cursor: pointer;
+}
+.nds-slider::-webkit-slider-runnable-track {
+  height: 4px;
+  border-radius: 999px;
+  background: linear-gradient(to right, var(--nds-blue) var(--fill, 50%), rgba(120, 120, 128, 0.42) var(--fill, 50%));
+}
+.nds-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 22px;
+  height: 22px;
+  margin-top: -9px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35), 0 0.5px 1px rgba(0, 0, 0, 0.2);
+}
+.nds-slider:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+.nds-value {
+  flex: 0 0 44px;
+  text-align: right;
+  color: var(--nds-label-2);
+  font-size: 18px;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Ô màu dạng chấm tròn */
+.nds-swatch {
+  flex: 0 0 auto;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 2px solid rgba(255, 255, 255, 0.9);
+  border-radius: 50%;
+  background: none;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+  cursor: pointer;
+  -webkit-appearance: none;
+  appearance: none;
+  overflow: hidden;
+}
+.nds-swatch::-webkit-color-swatch-wrapper {
+  padding: 0;
+}
+.nds-swatch::-webkit-color-swatch {
+  border: none;
+  border-radius: 50%;
+}
+.nds-swatch:disabled {
+  display: none; /* chỉ hiện màu nền khi bật nền mờ */
+}
+
+/* Icon SVG chung */
+.nds-icon {
+  display: inline-flex;
+  flex: 0 0 auto;
+}
+
+/* Footer */
+.nds-footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 16px;
+  margin-top: 14px;
+}
+.nds-hint {
+  flex: 1;
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  color: var(--nds-label-2);
+  font-size: 16.5px;
+  line-height: 1.5;
+  white-space: pre-line;
+}
+.nds-hint .nds-icon {
+  margin-top: 2px;
+  color: var(--nds-label);
+}
+.nds-reset {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-width: 220px;
+  height: 48px;
+  padding: 0 22px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--nds-red);
+  font-size: 19px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s ease, transform 0.1s ease;
+}
+.nds-reset:hover {
+  background: rgba(255, 255, 255, 0.12);
+}
+.nds-reset:active {
+  transform: scale(0.98);
+}
+
+/* ---------- Chẩn đoán ---------- */
+.nds-diag {
+  margin-top: 12px;
+  color: var(--nds-label-2);
+  font-size: 17px;
+}
+.nds-diag summary {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  list-style: none;
+  cursor: pointer;
+}
+.nds-diag summary::-webkit-details-marker {
+  display: none;
+}
+.nds-diag summary:hover {
+  color: var(--nds-label);
+}
+.nds-diag-text {
+  margin: 8px 0 0;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: rgba(0, 0, 0, 0.35);
+  color: var(--nds-label-2);
+  font: 15.5px/1.5 ui-monospace, "SF Mono", Consolas, monospace;
+  white-space: pre-wrap;
+  word-break: break-all;
+  user-select: text;
+}
+
+/* ---------- Khung "Câu thoại" song ngữ ----------
+ * Mặc định ở bên trái player; người dùng kéo tiêu đề để di chuyển, kéo cạnh/góc để đổi cỡ
+ * (main.js lưu vị trí/cỡ theo %). Độ mờ nền theo biến --nds-tr-alpha. */
+.nds-transcript {
+  --nds-tr-alpha: 0.75;
+  position: absolute;
+  top: calc(3% + 64px); /* chừa chỗ cho nút quay lại của Netflix ở góc trên trái */
+  left: 2%;
+  bottom: 20%;
+  width: clamp(280px, 30%, 460px);
+  min-width: 240px;
+  min-height: 180px;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  padding: 10px 10px 8px 14px;
+  border-radius: 20px;
+  pointer-events: auto;
+  color: var(--nds-label);
+  font: 400 15px/1.4 var(--nds-ui-font);
+  -webkit-font-smoothing: antialiased;
+  animation: nds-fade 0.18s ease;
+}
+.nds-transcript *,
+.nds-transcript *::before,
+.nds-transcript *::after {
+  box-sizing: border-box;
+}
+.nds-transcript.nds-glass {
+  background: linear-gradient(160deg, rgba(255, 255, 255, calc(0.12 * var(--nds-tr-alpha))) 0%, rgba(255, 255, 255, 0) 45%),
+    rgba(18, 22, 30, var(--nds-tr-alpha));
+  -webkit-backdrop-filter: blur(calc(28px * var(--nds-tr-alpha))) saturate(160%);
+  backdrop-filter: blur(calc(28px * var(--nds-tr-alpha))) saturate(160%);
+}
+.nds-transcript.nds-hidden {
+  display: none;
+}
+.nds-transcript.nds-tr-moving {
+  user-select: none;
+}
+@keyframes nds-fade {
+  from {
+    opacity: 0;
+    transform: translateX(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.nds-tr-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 6px;
+  cursor: grab;
+  touch-action: none;
+}
+.nds-tr-moving .nds-tr-header {
+  cursor: grabbing;
+}
+.nds-tr-title {
+  flex: 1;
+  min-width: 0;
+  font-size: 17px;
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.nds-tr-tool,
+.nds-tr-navbtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: 32px;
+  height: 30px;
+  border: 0;
+  border-radius: 9px;
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+.nds-tr-tool:hover,
+.nds-tr-navbtn:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+.nds-tr-tool.nds-on {
+  background: var(--nds-blue);
+}
+.nds-transcript .nds-close {
+  width: 30px;
+  height: 30px;
+  font-size: 13px;
+}
+.nds-tr-subrow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0 4px 8px 0;
+}
+.nds-tr-sublabel {
+  flex: none;
+  color: var(--nds-label-2);
+  font-size: 13px;
+}
+.nds-tr-opacity .nds-slider {
+  flex: 1;
+  min-width: 60px;
+}
+.nds-tr-subvalue {
+  flex: none;
+  min-width: 38px;
+  text-align: right;
+  color: var(--nds-label-2);
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+}
+.nds-tr-input {
+  flex: 1;
+  min-width: 0;
+  height: 34px;
+  padding: 0 12px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  font: 400 14.5px var(--nds-ui-font);
+  outline: none;
+}
+.nds-tr-input:focus {
+  border-color: var(--nds-blue);
+  box-shadow: 0 0 0 3px rgba(10, 132, 255, 0.3);
+}
+.nds-tr-input::placeholder {
+  color: rgba(255, 255, 255, 0.45);
+}
+.nds-tr-legend {
+  display: flex;
+  gap: 8px;
+  margin: 0 4px 6px 0;
+}
+/* Ô chọn ngôn ngữ dòng 1 (trắng) / dòng 2 (vàng) dạng "chip" */
+.nds-tr-lang {
+  flex: 1 1 0;
+  min-width: 0;
+  height: 30px;
+  padding: 0 26px 0 10px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 9px;
+  background: rgba(255, 255, 255, 0.08)
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='7'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%23ffffff' stroke-opacity='.8' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")
+    no-repeat right 9px center;
+  appearance: none;
+  -webkit-appearance: none;
+  font: 600 13px var(--nds-ui-font);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  cursor: pointer;
+  outline: none;
+}
+.nds-tr-lang:focus {
+  border-color: var(--nds-blue);
+}
+.nds-tr-lang option {
+  background: #1c1f26;
+  color: #fff;
+}
+.nds-tr-lang.nds-tr-l1 {
+  color: #fff;
+}
+.nds-tr-lang.nds-tr-l2 {
+  color: #ffe066;
+}
+/* Thu gọn sau 2 giây không thao tác: ẩn nút/ô chọn, chỉ còn khung + chữ
+ * (transcript.js chỉnh lại vị trí cuộn để chữ không bị nhảy). */
+.nds-tr-idle .nds-tr-header,
+.nds-tr-idle .nds-tr-legend,
+.nds-tr-idle .nds-tr-subrow,
+.nds-tr-idle .nds-tr-nav,
+.nds-tr-idle .nds-tr-grip {
+  display: none !important;
+}
+/* Lúc thu gọn: bỏ luôn nền, viền, bóng, chỉ còn chữ (thêm bóng chữ để vẫn đọc được trên phim) */
+.nds-transcript {
+  transition: background 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+}
+.nds-transcript.nds-glass.nds-tr-idle {
+  background: transparent;
+  border-color: transparent;
+  box-shadow: none;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+.nds-tr-idle .nds-tr-row {
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.9), 0 0 6px rgba(0, 0, 0, 0.6);
+}
+.nds-tr-idle .nds-tr-row:hover:not(.nds-tr-active) {
+  background: transparent;
+}
+.nds-tr-idle .nds-tr-row.nds-tr-active {
+  background: rgba(255, 255, 255, 0.1);
+  box-shadow: none;
+}
+.nds-tr-idle .nds-tr-list {
+  scrollbar-color: transparent transparent;
+}
+.nds-tr-idle .nds-tr-row {
+  cursor: default;
+}
+.nds-tr-list {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding-right: 4px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.25) transparent;
+}
+.nds-tr-group {
+  margin: 8px 8px 4px;
+  color: var(--nds-label-2);
+  font-size: 12.5px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+}
+.nds-tr-row {
+  display: flex;
+  gap: 8px;
+  padding: 7px 8px;
+  border-radius: 10px;
+  cursor: pointer;
+  opacity: 0.75;
+  transition: background-color 0.15s ease, opacity 0.15s ease;
+}
+.nds-tr-row:hover {
+  background: rgba(255, 255, 255, 0.08);
+  opacity: 1;
+}
+.nds-tr-results .nds-tr-row {
+  opacity: 0.92;
+}
+.nds-tr-row.nds-tr-active {
+  /* Xám nhẹ thay cho xanh để đỡ phân tâm khi xem phim */
+  background: rgba(255, 255, 255, 0.12);
+  box-shadow: inset 3px 0 0 rgba(255, 255, 255, 0.55);
+  opacity: 1;
+}
+.nds-tr-time {
+  flex: none;
+  min-width: 38px;
+  padding-top: 2px;
+  color: var(--nds-label-2);
+  font-size: 12.5px;
+  font-variant-numeric: tabular-nums;
+}
+.nds-tr-body {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.nds-tr-t1 {
+  color: #fff;
+  font-size: 15.5px;
+}
+.nds-tr-t2 {
+  margin-top: 2px;
+  color: #ffe066;
+  font-size: 14.5px;
+}
+.nds-tr-mark {
+  padding: 0 2px;
+  border-radius: 4px;
+  background: rgba(10, 132, 255, 0.55);
+  color: #fff;
+}
+.nds-tr-empty {
+  padding: 16px 6px;
+  color: var(--nds-label-2);
+  font-size: 14.5px;
+}
+.nds-tr-nav {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  padding-top: 8px;
+  margin-right: 4px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+.nds-tr-navbtn {
+  width: 44px;
+}
+/* Tay nắm đổi cỡ: dải trong suốt dọc theo cạnh/góc */
+.nds-tr-grip {
+  position: absolute;
+  z-index: 2;
+  touch-action: none;
+}
+.nds-tr-grip-n,
+.nds-tr-grip-s {
+  left: 14px;
+  right: 14px;
+  height: 8px;
+  cursor: ns-resize;
+}
+.nds-tr-grip-n {
+  top: -4px;
+}
+.nds-tr-grip-s {
+  bottom: -4px;
+}
+.nds-tr-grip-e,
+.nds-tr-grip-w {
+  top: 14px;
+  bottom: 14px;
+  width: 8px;
+  cursor: ew-resize;
+}
+.nds-tr-grip-e {
+  right: -4px;
+}
+.nds-tr-grip-w {
+  left: -4px;
+}
+.nds-tr-grip-ne,
+.nds-tr-grip-nw,
+.nds-tr-grip-se,
+.nds-tr-grip-sw {
+  width: 18px;
+  height: 18px;
+}
+.nds-tr-grip-ne {
+  top: -5px;
+  right: -5px;
+  cursor: nesw-resize;
+}
+.nds-tr-grip-sw {
+  bottom: -5px;
+  left: -5px;
+  cursor: nesw-resize;
+}
+.nds-tr-grip-nw {
+  top: -5px;
+  left: -5px;
+  cursor: nwse-resize;
+}
+.nds-tr-grip-se {
+  bottom: -5px;
+  right: -5px;
+  cursor: nwse-resize;
+}
+
+/* Dòng bản quyền */
+.nds-copyright {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 10px;
+}
+.nds-tg {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  color: var(--nds-label-2);
+  font-size: 15px;
+  letter-spacing: 0.2px;
+  text-decoration: none;
+}
+.nds-tg:hover {
+  color: #fff;
+}
+.nds-tg svg {
+  display: block;
+}
+/* Nút đặt lại + chẩn đoán ở cuối cột trái */
+.nds-card-bottom {
+  margin-top: auto;
+  padding-top: 14px;
+}
+.nds-card-bottom .nds-reset {
+  width: 100%;
+  min-width: 0;
+}
+
+/* Thuộc tính hidden luôn thắng các luật display ở trên */
+.nds-transcript [hidden] {
+  display: none !important;
+}
+
+/* ---------- Phiên âm Pinyin / Furigana (thẻ <ruby>) ---------- */
+.nds-root ruby {
+  ruby-position: over;
+  ruby-align: center;
+  margin: 0 0.07em; /* tách nhẹ các âm Pinyin để không dính vào nhau */
+}
+.nds-line rt {
+  font-size: 0.46em;
+  font-weight: 600;
+  line-height: 1.1;
+  letter-spacing: 0;
+  opacity: 0.92;
+}
+.nds-tr-ruby {
+  line-height: 1.75;
+}
+.nds-tr-ruby rt {
+  font-size: 0.62em;
+  font-weight: 500;
+  line-height: 1;
+  opacity: 0.8;
+}
+.nds-tr-phon {
+  width: auto;
+  padding: 0 8px;
+  font: 700 13px/1 var(--nds-ui-font);
+  letter-spacing: 0.5px;
+}
+
+/* ---------- Pinyin trên màn hình ---------- */
+/* Dòng gợi ý (không phải cảnh báo) dưới mục Pinyin trong panel */
+.nds-status-hint {
+  color: var(--nds-label-2, rgba(235, 235, 245, 0.6));
+  font-size: 15px;
+}
+.nds-select-pinyin {
+  max-width: 200px;
+}
+.nds-select:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+/* Dòng Pinyin riêng: chữ Latin có dấu thanh, giãn nhẹ cho dễ đọc */
+.nds-block-pinyin .nds-line {
+  letter-spacing: 0.02em;
+}
