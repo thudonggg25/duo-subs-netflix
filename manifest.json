@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "DUO SUBS – Dual Subtitles for Netflix",
   "short_name": "DUO SUBS",
-  "version": "1.9.2",
+  "version": "1.9.3",
   "description": "Hai phụ đề cùng lúc trên Netflix để học ngoại ngữ: Pinyin, Furigana, câu thoại song ngữ, tua theo câu.",
   "icons": {
     "16": "icons/icon16.png",
@@ -57,7 +57,8 @@
   "web_accessible_resources": [
     {
       "resources": [
-        "src/vendor/kuromoji-dict/*"
+        "src/vendor/kuromoji-dict/*",
+        "src/vendor/pinyin-pro-dict.json"
       ],
       "matches": [
         "https://www.netflix.com/*"
