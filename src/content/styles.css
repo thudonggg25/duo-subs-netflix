@@ -1035,8 +1035,68 @@ html.nds-hide-native .player-timedtext-text-container {
 /* Dòng bản quyền */
 .nds-copyright {
   display: flex;
-  justify-content: flex-end;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
   margin-top: 10px;
+}
+/* Phiên bản + cập nhật */
+.nds-update {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 10px;
+  color: var(--nds-label-2);
+  font-size: 15px;
+}
+.nds-update-msg {
+  color: #fff;
+  font-weight: 600;
+}
+.nds-update-new::before {
+  content: '';
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--nds-red, #ff453a);
+}
+.nds-update-link {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--nds-blue, #0a84ff);
+  font: inherit;
+  text-decoration: none;
+  cursor: pointer;
+}
+.nds-update-link:hover {
+  text-decoration: underline;
+}
+.nds-update-btn {
+  padding: 5px 14px;
+  border: 0;
+  border-radius: 10px;
+  background: var(--nds-blue, #0a84ff);
+  color: #fff;
+  font: inherit;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+}
+.nds-update-btn:hover {
+  filter: brightness(1.12);
+}
+/* Chấm đỏ trên nút DUO SUBS khi có bản mới */
+.nds-button.nds-has-update::after {
+  content: '';
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #ff453a;
+  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.5);
 }
 .nds-tg {
   display: inline-flex;

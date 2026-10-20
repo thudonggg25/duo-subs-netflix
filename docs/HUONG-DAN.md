@@ -32,7 +32,10 @@ Cách dễ nhất là cài từ Chrome Web Store, tiện ích sẽ tự cập nh
 4. Bấm **Tải tiện ích đã giải nén** và chọn thư mục có file `manifest.json`.
 5. Mở hoặc tải lại (F5) trang Netflix.
 
-Khi có bản mới dạng zip: giải nén đè lên thư mục cũ, bấm nút tải lại (↻) của DUO SUBS trong `chrome://extensions`, rồi F5 trang Netflix.
+**Cập nhật:** cuối panel có dòng phiên bản, cho biết bạn đã dùng bản mới nhất hay chưa; khi có bản mới, nút DUO SUBS hiện chấm đỏ.
+
+- Cài từ Chrome Web Store: Chrome tự cập nhật; muốn lên ngay thì bấm **Cập nhật ngay** ở cuối panel.
+- Cài thủ công: bấm **Tải bản mới**, giải nén đè lên thư mục cũ, bấm nút tải lại (↻) của DUO SUBS trong `chrome://extensions`, rồi F5 trang Netflix.
 
 ## Bắt đầu nhanh
 

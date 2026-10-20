@@ -32,7 +32,10 @@ The easiest way is to install from the Chrome Web Store, where the extension upd
 4. Click **Load unpacked** and choose the folder that contains `manifest.json`.
 5. Open or reload (F5) Netflix.
 
-To update a zip install: unzip the new version over the old folder, click the reload button (↻) on DUO SUBS in `chrome://extensions`, then reload Netflix.
+**Updates:** the bottom of the panel shows your version and whether it is up to date; when a new version exists, the DUO SUBS button shows a red dot.
+
+- Chrome Web Store install: Chrome updates it automatically; click **Update now** at the bottom of the panel to update right away.
+- Zip install: click **Download**, unzip over the old folder, click the reload button (↻) on DUO SUBS in `chrome://extensions`, then reload Netflix.
 
 ## Quick start
 

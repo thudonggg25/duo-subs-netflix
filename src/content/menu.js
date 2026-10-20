@@ -195,6 +195,9 @@ window.NDS = window.NDS || {};
 
       this.diagText = h('pre', { class: 'nds-diag-text' });
       this._i18n(this.diagText, 'collecting');
+      // Dòng phiên bản + kiểm tra cập nhật ở chân panel.
+      this.updateRow = h('div', { class: 'nds-update' });
+      this.updateState = null;
 
       this.panel = h('div', { class: 'nds-panel nds-glass nds-hidden' }, [
         // ---- Header: logo 52hz + tiêu đề + VIE/ENG + đóng ----
@@ -255,6 +258,7 @@ window.NDS = window.NDS || {};
         ]),
         // Bản quyền: icon Telegram + @calm52hz ở góc dưới bên phải (mở t.me/calm52hz).
         h('div', { class: 'nds-copyright' }, [
+          this.updateRow,
           h('a', { class: 'nds-tg', href: 'https://t.me/calm52hz', target: '_blank', rel: 'noopener noreferrer' }, [
             svg(ICON_TELEGRAM),
             h('span', {}, '@calm52hz'),
@@ -278,6 +282,90 @@ window.NDS = window.NDS || {};
           this.setOpen(false);
         }
       }, true);
+
+      this._renderUpdate();
+      setTimeout(() => this.checkUpdate(false), 4000);
+    }
+
+    // ---------- Cập nhật ----------
+
+    /** Hỏi service worker có bản mới không (force = bỏ qua kết quả đã lưu). */
+    checkUpdate(force) {
+      if (!NDS.extAlive || !NDS.extAlive()) return;
+      if (force || !this.updateState) {
+        this.updateState = { ...(this.updateState || {}), status: 'checking' };
+        this._renderUpdate();
+      }
+      chrome.runtime
+        .sendMessage({ type: 'NDS_UPDATE_CHECK', force: !!force })
+        .then((res) => {
+          this.updateState = res || { status: 'error' };
+          this._renderUpdate();
+        })
+        .catch(() => {
+          this.updateState = { status: 'error' };
+          this._renderUpdate();
+        });
+    }
+
+    _applyUpdate() {
+      if (!NDS.extAlive || !NDS.extAlive()) return;
+      chrome.runtime.sendMessage({ type: 'NDS_UPDATE_APPLY' }).then((res) => {
+        if (res && res.ok) {
+          this.updateState = { ...this.updateState, status: 'applying' };
+          this._renderUpdate();
+          setTimeout(() => location.reload(), 1500);
+        } else {
+          this.checkUpdate(true);
+        }
+      }).catch(() => {});
+    }
+
+    _renderUpdate() {
+      const st = this.updateState || { status: 'checking' };
+      const cur = st.current || (NDS.extAlive && NDS.extAlive() ? chrome.runtime.getManifest().version : '');
+      const has = st.status === 'available' || st.status === 'ready' || st.status === 'downloading';
+      this.button.classList.toggle('nds-has-update', has);
+      const row = this.updateRow;
+      row.textContent = '';
+      row.classList.toggle('nds-update-new', has);
+      const link = (key, onclick) => h('button', { type: 'button', class: 'nds-update-link', onclick }, NDS.t(key));
+      const recheck = () => link('updRecheck', () => this.checkUpdate(true));
+      const ver = h('span', { class: 'nds-update-ver' }, NDS.t('updVersion', { v: cur }));
+      switch (st.status) {
+        case 'latest':
+          row.append(ver, h('span', {}, NDS.t('updLatest')), recheck());
+          break;
+        case 'available': // bản cài thủ công từ GitHub
+          row.append(
+            h('span', { class: 'nds-update-msg' }, NDS.t('updAvailable', { v: st.latest })),
+            h('a', { class: 'nds-update-btn', href: st.zip, target: '_blank', rel: 'noopener noreferrer' }, NDS.t('updDownload')),
+            h('a', { class: 'nds-update-link', href: st.page, target: '_blank', rel: 'noopener noreferrer' }, NDS.t('updHow'))
+          );
+          row.title = NDS.t('updManualHint');
+          break;
+        case 'downloading':
+          row.append(h('span', { class: 'nds-update-msg' }, NDS.t('updDownloading', { v: st.latest })), recheck());
+          break;
+        case 'ready':
+          row.append(
+            h('span', { class: 'nds-update-msg' }, NDS.t('updAvailable', { v: st.latest })),
+            h('button', { type: 'button', class: 'nds-update-btn', onclick: () => this._applyUpdate() }, NDS.t('updNow'))
+          );
+          break;
+        case 'applying':
+          row.append(h('span', { class: 'nds-update-msg' }, NDS.t('updApplying')));
+          break;
+        case 'throttled':
+          row.append(ver, h('span', {}, NDS.t('updThrottled')));
+          break;
+        case 'error':
+          row.append(ver, h('span', {}, NDS.t('updError')), recheck());
+          break;
+        default:
+          row.append(ver, h('span', {}, NDS.t('updChecking')));
+      }
+      if (st.status !== 'available') row.removeAttribute('title');
     }
 
     // ---------- Thành phần kiểu iOS ----------
@@ -326,6 +414,7 @@ window.NDS = window.NDS || {};
     }
 
     _applyLanguage() {
+      if (this.updateRow) this._renderUpdate();
       for (const { node, key, params, attr } of this.i18nNodes) {
         const text = NDS.t(key, params);
         if (attr) node.setAttribute(attr, text);
@@ -339,6 +428,7 @@ window.NDS = window.NDS || {};
     setOpen(open) {
       if (this.open === open) return;
       this.open = open;
+      if (open) this.checkUpdate(false);
       this.panel.classList.toggle('nds-hidden', !open);
       this.button.classList.toggle('nds-open', open);
       this.handlers.onOpenChange(open);
