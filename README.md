@@ -8,7 +8,9 @@ Tiện ích Chrome (Manifest V3) hiển thị **2 phụ đề cùng lúc** khi x
 
 ## Cài đặt
 
-Cách dễ nhất: cài từ Chrome Web Store (link sẽ cập nhật khi được duyệt). Cài thủ công từ mã nguồn:
+Cách dễ nhất: cài từ [Chrome Web Store](https://chromewebstore.google.com/detail/gaepdhabgfnljejcjiagcflbaekfbigj), bấm **Thêm vào Chrome**, tiện ích tự cập nhật.
+
+Cài thủ công từ mã nguồn:
 
 1. Trên trang [GitHub](https://github.com/thudonggg25/duo-subs-netflix), bấm nút xanh **Code → Download ZIP** rồi giải nén.
 2. Mở `chrome://extensions`.

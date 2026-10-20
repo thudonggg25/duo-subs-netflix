@@ -20,7 +20,7 @@ Cách dễ nhất là cài từ Chrome Web Store, tiện ích sẽ tự cập nh
 
 **Từ Chrome Web Store**
 
-1. Mở trang DUO SUBS trên Chrome Web Store (link sẽ có sau khi Google duyệt).
+1. Mở [trang DUO SUBS trên Chrome Web Store](https://chromewebstore.google.com/detail/gaepdhabgfnljejcjiagcflbaekfbigj).
 2. Bấm **Thêm vào Chrome**, rồi bấm **Thêm tiện ích**.
 3. Mở hoặc tải lại (F5) trang Netflix đang xem.
 

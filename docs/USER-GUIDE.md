@@ -20,7 +20,7 @@ The easiest way is to install from the Chrome Web Store, where the extension upd
 
 **From the Chrome Web Store**
 
-1. Open the DUO SUBS page on the Chrome Web Store (link available once Google approves it).
+1. Open the [DUO SUBS page on the Chrome Web Store](https://chromewebstore.google.com/detail/gaepdhabgfnljejcjiagcflbaekfbigj).
 2. Click **Add to Chrome**, then **Add extension**.
 3. Open or reload (F5) the Netflix page you are watching.
 
