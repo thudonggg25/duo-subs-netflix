@@ -24,11 +24,63 @@ window.NDS = window.NDS || {};
   const toHira = (s) => s.replace(/[ァ-ヶ]/g, (c) => String.fromCharCode(c.charCodeAt(0) - 0x60));
 
   // ---------- Tiếng Trung ----------
+  // pinyin-pro chọn âm cho chữ đa âm theo từ điển cụm từ. Với một số chữ hư từ rất hay gặp trong
+  // hội thoại, khi chữ đứng riêng (không nằm trong cụm từ có sẵn) thư viện trả âm mặc định sai
+  // (vd. 穿得 → "dé", đúng là "de"). Các luật dưới đây sửa những trường hợp phổ biến nhất.
+  const HAN = /[\u3400-\u9fff]/;
+  const has = (set, c) => !!c && set.includes(c);
+  const DE_PREV_KEEP = '获獲取赢贏难難值心所懂晓曉记記觉覺显顯舍捨免不'; // 获得 dé, 觉得 de… để từ điển quyết
+  const DE_NEXT_KEEP = '到以分意罪知手出益逞体體力失奖獎病了'; // 得到, 得分… = dé
+  const DE_PRON = '我你他她它您咱俺们們'; // 我得走了 = děi
+  const HUAN_NEXT = '钱錢书書债債款给給清'; // 还钱 huán
+  const HUAN_PREV = '归歸偿償退交奉送'; // 归还 huán
+  const HAI_NEXT = '没沒是有要在会會不很能可得好也都在再'; // 还没 hái
+  const ZHE_NEXT_KEEP = '名作称稱述书書急火凉涼迷陆陸手重想落'; // 著名, 着急…
+  const ZHE_PREV_KEEP = '显顯土卓巨编編原论論名';
+  let zhReady = false;
+
+  function initZh(lib) {
+    if (zhReady) return;
+    zhReady = true;
+    try {
+      // Bảng Phồn → Giản giúp tra đúng cụm từ trong phụ đề Phồn thể (vd. 銀行 → yín háng).
+      if (window.NDS_ZH_T2S && lib.addTraditionalDict) lib.addTraditionalDict(window.NDS_ZH_T2S);
+      if (lib.customPinyin) {
+        lib.customPinyin({ 长得: 'zhǎng de', 長得: 'zhǎng de', 长大: 'zhǎng dà', 長大: 'zhǎng dà' });
+      }
+    } catch (e) {
+      console.info('[Dual Subs] Không nạp được dữ liệu Pinyin bổ sung:', e);
+    }
+  }
+
+  function fixPolyphones(items) {
+    for (let i = 0; i < items.length; i++) {
+      const it = items[i];
+      if (!it.isZh) continue;
+      const c = it.origin;
+      const prev = items[i - 1] && items[i - 1].isZh ? items[i - 1].origin : '';
+      const next = items[i + 1] && items[i + 1].isZh ? items[i + 1].origin : '';
+      if (c === '得') {
+        if (!prev || has(DE_NEXT_KEEP, next) || has(DE_PREV_KEEP, prev) || it.pinyin === 'de') continue;
+        it.pinyin = has(DE_PRON, prev) ? 'děi' : 'de';
+      } else if (c === '还' || c === '還') {
+        if (has(HUAN_NEXT, next) || has(HUAN_PREV, prev)) it.pinyin = 'huán';
+        else if (has(HAI_NEXT, next)) it.pinyin = 'hái';
+      } else if (c === '著' || c === '着') {
+        // Trợ từ "đang/đã" sau động từ: 看著 kàn zhe; 睡著 shuì zháo.
+        if (!prev || has(ZHE_NEXT_KEEP, next) || has(ZHE_PREV_KEEP, prev)) continue;
+        it.pinyin = prev === '睡' ? 'zháo' : 'zhe';
+      }
+    }
+    return items;
+  }
+
   function annotateZh(text) {
     const lib = window.pinyinPro;
     if (!lib) return [{ text }];
+    initZh(lib);
     const out = [];
-    for (const item of lib.pinyin(text, { type: 'all' })) {
+    for (const item of fixPolyphones(lib.pinyin(text, { type: 'all', traditional: true }))) {
       if (item.isZh && item.pinyin) out.push({ text: item.origin, rt: item.pinyin });
       else if (out.length && !out[out.length - 1].rt) out[out.length - 1].text += item.origin;
       else out.push({ text: item.origin });
