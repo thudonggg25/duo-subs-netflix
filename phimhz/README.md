@@ -52,7 +52,7 @@ Mặc định dùng Claude Opus 5.5 ($4 / $20 cho mỗi triệu token vào / ra)
   - Chọn tốc độ đọc cho vừa khoảng trống tới câu sau.
   - Hạ tiếng phim bằng `video.volume`.
   - Tạm dừng và tua theo phim.
-- SDK Anthropic được đóng gói sẵn vào `src/vendor/anthropic-sdk.mjs` (bản 1.6.0, giấy phép MIT), nên không cần bước build.
+- SDK Anthropic được đóng gói sẵn vào `src/vendor/anthropic-sdk.mjs` (bản 1.6.0, giấy phép Apache 2.0), nên không cần bước build.
 
 ## Test
 
